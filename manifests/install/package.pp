@@ -29,18 +29,30 @@ define dotnet::install::package(
   }
 
   if $ensure == 'present' {
-    exec { "install-dotnet-${version}":
-      command   => "& \"${source_dir}\\${exe}\" /q /norestart",
-      provider  => powershell,
-      logoutput => true,
-      unless    => "if ((Get-Item -LiteralPath \'${key}\' -ErrorAction SilentlyContinue).GetValue(\'DisplayVersion\')) { exit 0 }"
+    # exec { "install-dotnet-${version}":
+    #   path      => $::path,
+    #   command   => "& \"${source_dir}\\${exe}\" /q /norestart",
+    #   provider  => powershell,
+    #   logoutput => true,
+    #   unless    => "if ((Get-Item -LiteralPath \'${key}\' -ErrorAction SilentlyContinue).GetValue(\'DisplayVersion\')) { exit 0 }"
+    # }
+    package { "dotnet-${version}":
+      ensure          => installed,
+      source          => "${source_dir}\\${exe}",
+      install_options => ['/norestart'],
     }
   } else {
-    exec { "uninstall-dotnet-${version}":
-      command   => "& \"${source_dir}\\${exe}\" /x /q /norestart",
-      provider  => powershell,
-      logoutput => true,
-      unless    => "if ((Get-Item -LiteralPath \'${key}\' -ErrorAction SilentlyContinue).GetValue(\'DisplayVersion\')) { exit 1 }"
+    # exec { "uninstall-dotnet-${version}":
+    #   path      => $::path,
+    #   command   => "& \"${source_dir}\\${exe}\" /x /q /norestart",
+    #   provider  => powershell,
+    #   logoutput => true,
+    #   unless    => "if ((Get-Item -LiteralPath \'${key}\' -ErrorAction SilentlyContinue).GetValue(\'DisplayVersion\')) { exit 1 }"
+    # }
+    package { "dotnet-${version}":
+      ensure          => absent,
+      source          => "${source_dir}\\${exe}",
+      install_options => ['/norestart'],
     }
   }
 
