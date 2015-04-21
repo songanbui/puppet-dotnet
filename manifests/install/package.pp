@@ -30,14 +30,14 @@ define dotnet::install::package(
 
   if $ensure == 'present' {
     exec { "install-dotnet-${version}":
-      command   => "& ${source_dir}\\${exe} /q /norestart",
+      command   => "& \"${source_dir}\\${exe}\" /q /norestart",
       provider  => powershell,
       logoutput => true,
       unless    => "if ((Get-Item -LiteralPath \'${key}\' -ErrorAction SilentlyContinue).GetValue(\'DisplayVersion\')) { exit 0 }"
     }
   } else {
     exec { "uninstall-dotnet-${version}":
-      command   => "& ${source_dir}\\${exe} /x /q /norestart",
+      command   => "& \"${source_dir}\\${exe}\" /x /q /norestart",
       provider  => powershell,
       logoutput => true,
       unless    => "if ((Get-Item -LiteralPath \'${key}\' -ErrorAction SilentlyContinue).GetValue(\'DisplayVersion\')) { exit 1 }"
