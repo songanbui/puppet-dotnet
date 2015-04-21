@@ -14,16 +14,20 @@ define dotnet::install::package(
 
   if "x${package_dir}x" == 'xx' {
     $source_dir = 'C:\Windows\Temp'
-    if $ensure == 'present' {
-      download_file { "download-dotnet-${version}" :
-        url                   => $url,
-        destination_directory => $source_dir
-      }
-    } else {
-      file { "C:/Windows/Temp/${exe}":
-        ensure => absent
-      }
+    download_file { "download-dotnet-${version}" :
+      url                   => $url,
+      destination_directory => $source_dir
     }
+    # if $ensure == 'present' {
+    #   download_file { "download-dotnet-${version}" :
+    #     url                   => $url,
+    #     destination_directory => $source_dir
+    #   }
+    # } else {
+    #   file { "C:/Windows/Temp/${exe}":
+    #     ensure => absent
+    #   }
+    # }
   } else {
     $source_dir = $package_dir
   }
@@ -39,7 +43,7 @@ define dotnet::install::package(
     package { "dotnet-${version}":
       ensure          => installed,
       source          => "${source_dir}\\${exe}",
-      install_options => ['/norestart'],
+      install_options => ['/norestart','/q'],
     }
   } else {
     # exec { "uninstall-dotnet-${version}":
@@ -50,9 +54,9 @@ define dotnet::install::package(
     #   unless    => "if ((Get-Item -LiteralPath \'${key}\' -ErrorAction SilentlyContinue).GetValue(\'DisplayVersion\')) { exit 1 }"
     # }
     package { "dotnet-${version}":
-      ensure          => absent,
-      source          => "${source_dir}\\${exe}",
-      install_options => ['/norestart'],
+      ensure            => absent,
+      source            => "${source_dir}\\${exe}",
+      uninstall_options => ['/norestart','q'],
     }
   }
 
