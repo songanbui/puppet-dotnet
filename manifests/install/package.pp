@@ -10,6 +10,7 @@ define dotnet::install::package(
   $url = $dotnet::params::version[$version]['url']
   $exe = $dotnet::params::version[$version]['exe']
   $key = $dotnet::params::version[$version]['key']
+  $packages = $dotnet::params::version[$version]['packages']
 
 
   if "x${package_dir}x" == 'xx' {
@@ -18,46 +19,35 @@ define dotnet::install::package(
       url                   => $url,
       destination_directory => $source_dir
     }
-    # if $ensure == 'present' {
-    #   download_file { "download-dotnet-${version}" :
-    #     url                   => $url,
-    #     destination_directory => $source_dir
-    #   }
-    # } else {
-    #   file { "C:/Windows/Temp/${exe}":
-    #     ensure => absent
-    #   }
-    # }
   } else {
     $source_dir = $package_dir
   }
 
-  if $ensure == 'present' {
-    # exec { "install-dotnet-${version}":
-    #   path      => $::path,
-    #   command   => "& \"${source_dir}\\${exe}\" /q /norestart",
-    #   provider  => powershell,
-    #   logoutput => true,
-    #   unless    => "if ((Get-Item -LiteralPath \'${key}\' -ErrorAction SilentlyContinue).GetValue(\'DisplayVersion\')) { exit 0 }"
-    # }
-    package { "dotnet-${version}":
-      ensure          => installed,
-      source          => "${source_dir}\\${exe}",
-      install_options => ['/norestart','/q'],
-    }
-  } else {
-    # exec { "uninstall-dotnet-${version}":
-    #   path      => $::path,
-    #   command   => "& \"${source_dir}\\${exe}\" /x /q /norestart",
-    #   provider  => powershell,
-    #   logoutput => true,
-    #   unless    => "if ((Get-Item -LiteralPath \'${key}\' -ErrorAction SilentlyContinue).GetValue(\'DisplayVersion\')) { exit 1 }"
-    # }
-    package { "dotnet-${version}":
-      ensure            => absent,
-      source            => "${source_dir}\\${exe}",
-      uninstall_options => ['/norestart','q'],
-    }
+  # if $ensure == 'present' {
+  #   package { "dotnet-${version}":
+  #     ensure          => installed,
+  #     source          => "${source_dir}\\${exe}",
+  #     install_options => ['/norestart','/q'],
+  #   }
+  # } else {
+  #   package { "dotnet-${version}":
+  #     ensure            => absent,
+  #     source            => "${source_dir}\\${exe}",
+  #     uninstall_options => ['/norestart','/q','/x'],
+  #   }
+  # }
+  $defaults = {
+    ensure            => $ensure,
+    source            => "${source_dir}\\${exe}",
+    install_options   => ['/norestart','/q'],
+    uninstall_options => ['/norestart','/q','/x'],
   }
+  create_resources('package',$packages,$defaults)
 
+  # package { $displayName :
+  #   ensure            => $ensure,
+  #   source            => "${source_dir}\\${exe}",
+  #   install_options   => ['/norestart','/q'],
+  #   uninstall_options => ['/norestart','/q','/x'],
+  # }
 }
